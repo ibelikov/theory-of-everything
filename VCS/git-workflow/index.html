@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        
+        
+        
+        <link rel="shortcut icon" href="../../img/favicon.ico">
+
+	<title>Git workflow - Theory of Everything @ CI Team</title>
+
+        <link href="../../css/bootstrap-custom.min.css" rel="stylesheet">
+        <link href="../../css/font-awesome-4.0.3.css" rel="stylesheet">
+        <link rel="stylesheet" href="../../css/highlight.css">
+        <link href="../../css/base.css" rel="stylesheet">
+
+        <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+        <!--[if lt IE 9]>
+            <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+            <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
+        <![endif]-->
+
+        
+    </head>
+
+    <body>
+
+        <div class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="container">
+
+        <!-- Collapsed navigation -->
+        <div class="navbar-header">
+            <!-- Expander button -->
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+
+            <!-- Main title -->
+            <a class="navbar-brand" href="../..">Theory of Everything @ CI Team</a>
+        </div>
+
+        <!-- Expanded navigation -->
+        <div class="navbar-collapse collapse">
+            <!-- Main navigation -->
+            <ul class="nav navbar-nav">
+            
+            
+                <li >
+                    <a href="../..">Home</a>
+                </li>
+            
+            
+            
+                <li class="dropdown active">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">VCS <b class="caret"></b></a>
+                    <ul class="dropdown-menu">
+                    
+                        
+<li class="active">
+    <a href="./">Git workflow</a>
+</li>
+
+                    
+                    </ul>
+                </li>
+            
+            
+            </ul>
+
+            <!-- Search, Navigation and Repo links -->
+            <ul class="nav navbar-nav navbar-right">
+                <li>
+                    <a href="#" data-toggle="modal" data-target="#mkdocs_search_modal">
+                        <i class="fa fa-search"></i> Search
+                    </a>
+                </li>
+                <li >
+                    <a rel="next" href="../..">
+                        <i class="fa fa-arrow-left"></i> Previous
+                    </a>
+                </li>
+                <li class="disabled">
+                    <a rel="prev" >
+                        Next <i class="fa fa-arrow-right"></i>
+                    </a>
+                </li>
+                
+                <li>
+                    <a href="https://github.com/ci-team/theory-of-everything">
+                        
+                            <i class="fa fa-github"></i>
+                        
+                        GitHub
+                    </a>
+                </li>
+                
+            </ul>
+        </div>
+    </div>
+</div>
+
+        <div class="container">
+            <div class="col-md-3"><div class="bs-sidebar hidden-print affix well" role="complementary">
+    <ul class="nav bs-sidenav">
+    
+        <li class="main active"><a href="#example-of-git-workflow-for-bitbucket">Example of Git Workflow for BitBucket</a></li>
+        
+            <li><a href="#branching-strategy">Branching strategy</a></li>
+        
+            <li><a href="#tips-and-tricks">Tips and Tricks</a></li>
+        
+    
+    </ul>
+</div></div>
+            <div class="col-md-9" role="main">
+
+<h1 id="example-of-git-workflow-for-bitbucket">Example of Git Workflow for BitBucket</h1>
+<h2 id="branching-strategy">Branching strategy</h2>
+<h3 id="master-branch">Master branch</h3>
+<p>There is a <code>master</code> branch which holds current state of the project. <code>master</code> branch must provide a working state of the
+code all the time.</p>
+<p>If master is broken - development and merges to master branch are blocked until situation is resolved.</p>
+<p>To keep master in a working state, direct pushes to master branch are disabled. Every change to master branch must come
+from a pull-requests which passes tests and gets approval from code reviewers.</p>
+<h3 id="feature-branch">Feature branch</h3>
+<p>Every change is developed in a dedicated feature branch <code>feature/&lt;TASK-ID&gt;-some-meaningful-description</code>.</p>
+<pre><code>    ---- A ---- B ---- C ---- D ----  master
+          \
+           \
+            \
+             E ---- F ----            feature/TASK-123-add-gradle-scripts
+</code></pre>
+
+<p>Feature branch is merged to master via pull-request.</p>
+<h3 id="release-branch">Release branch</h3>
+<p>Release branch is created manually from a certain "good enough" point on a master branch and must be named <code>release/&lt;version&gt;</code>.</p>
+<p>Release candidate is built from release branch.</p>
+<p>Direct push to release branch is forbidden. Changes to release branch come via pull-requests from bugfix-branches.</p>
+<p>Once release is deployed to production, release branch needs to be merged back to <code>master</code>.</p>
+<h3 id="bugfix-branch">Bugfix branch</h3>
+<p><code>bugfix</code>-branches for <code>release/smth</code> is the same as <code>feature</code>-branches for <code>master</code>.</p>
+<p>bugfix branch created from branch <code>release/X.Y.Z</code> can only be merged to the same <code>release/X.Y.Z</code> branch.</p>
+<p>Never merge it to master, feature branch or any other release branch.</p>
+<h2 id="tips-and-tricks">Tips and Tricks</h2>
+<h3 id="always-create-feature-branch-from-master">Always create feature branch from master</h3>
+<p>Never create a branch from another feature branch.</p>
+<p>Wrong:</p>
+<pre><code>    ---- A ---- B ---- C ---- D ----  master
+          \
+           \
+            \
+             E ---- F ----            feature/TASK-123-add-gradle-scripts
+                     \
+                      \
+                       \
+                        G ----        feature/TASK-345-add-partner-XYZ
+</code></pre>
+
+<p>Correct:</p>
+<pre><code>                    G ----            feature/TASK-345-add-partner-XYZ
+                   /
+                  /
+                 /
+    ---- A ---- B ---- C ---- D ----  master
+          \
+           \
+            \
+             E ---- F ----            feature/TASK-123-add-gradle-scripts
+</code></pre>
+
+<p>The main goal of this rule is that we need to avoid merges and keep history as linear as possible. With merges you can
+no longer see the linear history of the changes, and can not navigate with them easily.</p>
+<p>There might be the case when you have part one of a feature implemented in a branch and it is ready to merge as it
+is. But while it is still on review, you want to keep working on this new codebase.</p>
+<p>In the ideal world you should wait till the feature branch is merged. The idea is that you start additional improvements
+and refactoring of the code only when it is already accepted to the mainline and you can be sure that there will be no
+new changes. While code is on review, it might be that you will need to change it, which then will cause rewriting of
+all the new code you have written so far.</p>
+<p>If it is impossible (the review is pending but you <em>need</em> to keep working on the feature), the other option would be:</p>
+<p>Step 1. Create new branch for next part of the feature:</p>
+<pre><code>    ---- A ---- B ----             master
+          \
+           \
+            \
+             E ---- F                 feature/TASK-123-part-1
+                     \
+                      \
+                       \
+                        G ----        feature/TASK-123-part-2
+</code></pre>
+
+<p>Step 2. Create pull-request for feature/TASK-123-part-1 (the F commit) and keep working in the branch
+feature/TASK-123-part-2 (commit G)</p>
+<p>Step 3. Once feature/TASK-123-part-1 is accepted, rebase feature/TASK-123-part-2 on master:</p>
+<pre><code>    ---- A ---- B ---(merge-commit)- C ---- D ----            master
+          \             /                    \
+           \           /                      \
+            \         /                        \
+             E ---- F                           G ----        feature/TASK-123-part-2
+</code></pre>
+
+<p>Step 4. Keep working on feature/TASK-123-part-2 as an independent feature branch.</p>
+<p>The third step is very important as it will eliminate the complexity in the merge of feature/TASK-123-part-2 to master
+later on.</p>
+<h3 id="use-small-independent-commits">Use small independent commits</h3>
+<p>If you can split the task into series of independent commits, create independent feature-branches for each of them.</p>
+<p>The smaller your feature branch is - the easier it is for review and testing. Ideally, every feature branch should
+contain just one atomic commit. And it should be merged to master as soon as commit is ready and passed test and review.</p>
+<p>Ok:</p>
+<pre><code>    ---- A -- B -- C -- merge ---- D ----  master
+          \              /
+           \            /
+            \          /
+             E ------ F                    feature/TASK-123-add-gradle-scripts-and-clean-env.yaml
+</code></pre>
+
+<p>But better:</p>
+<pre><code>                              F               feature/TASK-123-clean-environment.yml
+                             / \
+                            /   \
+                           /     \
+    ---- A - B - merge -- C -- merge -- D --  master
+          \     /
+           \   /
+            \ /
+             E                                feature/TASK-123-add-gradle-scripts
+
+</code></pre>
+
+<p>Do not wait for the end of the sprint or for full feature implementation to merge the working code.</p>
+<h3 id="never-merge-to-feature-branch-rebase">Never merge to feature-branch, rebase</h3>
+<p>Merges bring complexity and increase amount of work required to track changes and manage branches. Avoid them and use
+rebase instead.</p>
+<p>Rebase reapplies your changes in the same order you did them on top of the master branch, thus it keeps history
+straightforward.</p>
+<p>Good:</p>
+<pre><code>    ---- A ---- B ---- C ---- D ----  master
+          \
+           \
+            \
+             E ---- F ----            feature/TASK-123-add-gradle-scripts
+
+
+    $ git checkout feature/TASK-123-add-gradle-scripts
+    $ git rebase master
+
+
+    ---- A ---- B ---- C ---- D ----  master
+                               \
+                                \
+                                 \
+                                  E'---- F'----  feature/TASK-123-add-gradle-scripts
+</code></pre>
+
+<h3 id="rebase-often">Rebase often</h3>
+<p>The smaller the footprint of your change is, the easier it is to handle. The earlier you spot the merge conflict, the
+easier it is to resolve.</p>
+<p>Rebase your branch onto master at least once per day.</p>
+<h3 id="use-push-force">Use push --force</h3>
+<p><code>git push --force</code> is a dangerous command as it rewrites history of the branch.</p>
+<p>It is strictly forbidden to do <code>push --force</code> for master and release branches, as these branches are used for
+collaboration, and their history is critically important and must be kept consistent.</p>
+<p>But for feature branches <code>git push --force</code> is recommended. It is, in fact, required for <code>rebase</code> to work.</p>
+<p>Feature branch is independent and short-living branch and owned by one developer. So one can alter its history without
+affecting anyone else's work. More to that, it is critically important to keep history of feature branch clean and
+readable, as it is targeted for review.</p>
+<p>Thus, while you are working on a yet unmerged feature branch, use interactive rebase, squashing and amending technics to
+clean the history, modify comments and adjust their order. And then use <code>git push --force</code> for this branch to publish it
+to Bitbucket.</p>
+<p>If you create pull-request from a feature branch, and then change and update the branch with <code>push --force</code>, Bitbucket
+will automatically update the pull-request for you.</p></div>
+        </div>
+
+        <footer class="col-md-12">
+            <hr>
+            
+            <center>Documentation built with <a href="http://www.mkdocs.org/">MkDocs</a>.</center>
+        </footer>
+
+        <script src="../../js/jquery-1.10.2.min.js"></script>
+        <script src="../../js/bootstrap-3.0.3.min.js"></script>
+        <script src="../../js/highlight.pack.js"></script>
+        <script>var base_url = '../..';</script>
+        <script data-main="../../mkdocs/js/search.js" src="../../mkdocs/js/require.js"></script>
+        <script src="../../js/base.js"></script>
+
+        <div class="modal" id="mkdocs_search_modal" tabindex="-1" role="dialog" aria-labelledby="Search Modal" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                        <h4 class="modal-title" id="exampleModalLabel">Search</h4>
+                    </div>
+                    <div class="modal-body">
+                        <p>
+                            From here you can search these documents. Enter
+                            your search terms below.
+                        </p>
+                        <form role="form">
+                            <div class="form-group">
+                                <input type="text" class="form-control" placeholder="Search..." id="mkdocs-search-query">
+                            </div>
+                        </form>
+                        <div id="mkdocs-search-results"></div>
+                    </div>
+                    <div class="modal-footer">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>
